@@ -404,9 +404,22 @@ class ReownAppKitModalNetworks {
     }
   }
 
-  @Deprecated('`chainId` from ReownAppKitModalNetworkInfo is already CAIP-2')
   static String getCaip2Chain(String chainId) {
-    return chainId;
+     if (NamespaceUtils.isValidChainId(chainId)) {
+      return chainId;
+    } else {
+      for (final entry in _mainnets.entries) {
+        if (entry.value.any((e) => e.chainId == chainId)) {
+          return '${entry.key}:$chainId';
+        }
+      }
+      for (final entry in _testnets.entries) {
+        if (entry.value.any((e) => e.chainId == chainId)) {
+          return '${entry.key}:$chainId';
+        }
+      }
+      throw ReownAppKitModalException('Unknown chainId: $chainId');
+    }
   }
 
   static final Map<String, String> _networkIcons = {
