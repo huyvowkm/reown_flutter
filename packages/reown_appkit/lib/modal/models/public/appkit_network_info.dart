@@ -33,6 +33,8 @@ extension AppKitNetworkInfoExtension on ReownAppKitModalNetworkInfo {
 
   String get caip2ChainId => ReownAppKitModalNetworks.getCaip2ChainId(chainId);
 
+  String get namespace => ReownAppKitModalNetworks.getNamespaceForChainId(chainId);
+
   Map<String, dynamic> toRawJson({int? decimals}) {
     return {
       'chainId': chainHexId,
