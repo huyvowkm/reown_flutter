@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:reown_appkit/modal/services/magic_service/models/frame_message.dart';
 import 'package:reown_appkit/reown_appkit.dart';
 
 class ReownAppKitModalNetworks {
@@ -235,28 +236,24 @@ class ReownAppKitModalNetworks {
     String namespace,
     String chainId,
   ) {
-    return getNetworkInfo(namespace, chainId);
+    return getNetworkInfo(chainId);
   }
 
-  static ReownAppKitModalNetworkInfo? getNetworkInfo(
-    String namespace,
-    String chainId,
-  ) {
-    if (namespace.isEmpty) {
-      throw ReownAppKitModalException('`namespace` can not be empty');
-    }
-    if (chainId.isEmpty) {
-      throw ReownAppKitModalException('`chainId` can not be empty');
-    }
-    if (NamespaceUtils.isValidChainId(chainId)) {
-      final namespace = NamespaceUtils.getNamespaceFromChain(chainId);
+  static ReownAppKitModalNetworkInfo? getNetworkInfo(String chainId) {
+    try {
+      if (chainId.isEmpty) {
+        throw ReownAppKitModalException('`chainId` can not be empty');
+      }
+      final namespace = getNamespaceForChainId(chainId);
+      if (NamespaceUtils.isValidChainId(chainId)) {
+        chainId = getIdFromCaip2ChainId(chainId);
+      }
       return getAllSupportedNetworks(namespace: namespace).firstWhereOrNull(
         (e) => e.chainId == chainId,
       );
+    } catch (_) {
+      return null;
     }
-    return getAllSupportedNetworks(namespace: namespace).firstWhereOrNull(
-      (e) => e.chainId == '$namespace:$chainId',
-    );
   }
 
   static void removeSupportedNetworks(
@@ -300,7 +297,7 @@ class ReownAppKitModalNetworks {
     // clean chains
     final parsedChainsToAdd = chainsToAdd.map((e) {
       if (e.chainId.contains(':')) {
-        final cid = getIdFromChain(e.chainId);
+        final cid = getIdFromCaip2ChainId(e.chainId);
         return e.copyWith(chainId: cid);
       }
       return e;
@@ -331,19 +328,11 @@ class ReownAppKitModalNetworks {
     String? namespace,
   }) {
     final mainnets = _mainnets.entries
-        .map((e) {
-          final ns = e.key;
-          final chains = e.value;
-          return chains.map(
-            (c) => c.copyWith(
-              chainId: '$ns:${c.chainId}',
-            ),
-          );
-        })
+        .map((e) => e.value)
         .expand((e) => e)
         .where((e) {
           if (namespace != null) {
-            final ns = NamespaceUtils.getNamespaceFromChain(e.chainId);
+            final ns = getNamespaceForChainId(e.chainId);
             return !e.isTestNetwork && ns == namespace;
           }
           return !e.isTestNetwork;
@@ -351,19 +340,11 @@ class ReownAppKitModalNetworks {
         .toList();
 
     final testnets = _testnets.entries
-        .map((e) {
-          final ns = e.key;
-          final chains = e.value;
-          return chains.map(
-            (c) => c.copyWith(
-              chainId: '$ns:${c.chainId}',
-            ),
-          );
-        })
+        .map((e) => e.value)
         .expand((e) => e)
         .where((e) {
           if (namespace != null) {
-            final ns = NamespaceUtils.getNamespaceFromChain(e.chainId);
+            final ns = getNamespaceForChainId(e.chainId);
             return e.isTestNetwork && ns == namespace;
           }
           return e.isTestNetwork;
@@ -374,12 +355,12 @@ class ReownAppKitModalNetworks {
     return [...mainnets, ...testnets].toList();
   }
 
-  @Deprecated('use NamespaceUtils.getNamespaceFromChain()')
   static String getNamespaceForChainId(String chainId) {
-    return NamespaceUtils.getNamespaceFromChain(chainId);
+    chainId = getCaip2ChainId(chainId);
+    return chainId.split(':').first;
   }
 
-  static String getIdFromChain(String chainId) {
+  static String getIdFromCaip2ChainId(String chainId) {
     if (!NamespaceUtils.isValidChainId(chainId)) {
       throw Errors.getSdkError(
         Errors.UNSUPPORTED_CHAINS,
@@ -392,19 +373,17 @@ class ReownAppKitModalNetworks {
 
   static String getNetworkIconId(String chainId) {
     try {
-      final namespace = NamespaceUtils.getNamespaceFromChain(chainId);
-      final network = getNetworkInfo(namespace, chainId);
-      if (network?.isTestNetwork == true) return '';
+      final network = getNetworkInfo(chainId);
       if ((network?.chainIcon ?? '').isNotEmpty) {
         return network!.chainIcon!;
       }
-      return _networkIcons[chainId]!;
+      return _networkIcons[getCaip2ChainId(chainId)]!;
     } catch (e) {
       return '';
     }
   }
 
-  static String getCaip2Chain(String chainId) {
+  static String getCaip2ChainId(String chainId) {
      if (NamespaceUtils.isValidChainId(chainId)) {
       return chainId;
     } else {

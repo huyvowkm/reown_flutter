@@ -331,10 +331,8 @@ extension on SessionRequestParams {
       case MethodsConstants.walletSwitchEthChain:
       case MethodsConstants.walletAddEthChain:
         try {
-          final namespace = NamespaceUtils.getNamespaceFromChain(chainId!);
           final chainInfo = ReownAppKitModalNetworks.getNetworkInfo(
-            namespace,
-            chainId,
+            chainId!,
           )!;
           return AddEthereumChain(
             chainId: chainInfo.chainId,

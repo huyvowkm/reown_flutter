@@ -78,9 +78,7 @@ class _ConnectNetworkPageState extends State<ConnectNetworkPage>
         ReownCoreUtils.openURL(redirect);
         await _appKitModal!.requestSwitchToChain(widget.chainInfo);
         final chainId = widget.chainInfo.chainId;
-        final namespace = NamespaceUtils.getNamespaceFromChain(chainId);
         final chainInfo = ReownAppKitModalNetworks.getNetworkInfo(
-          namespace,
           chainId,
         );
         if (chainInfo != null) {

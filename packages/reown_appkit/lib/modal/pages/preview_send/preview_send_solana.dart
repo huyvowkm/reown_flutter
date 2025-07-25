@@ -121,11 +121,10 @@ class _PreviewSendSolanaState extends State<PreviewSendSolana> {
 
   Future<solana.Transaction> _contructSolanaTX(double valueToSend) async {
     // Create a connection to the devnet cluster.
-    final chainId = ReownAppKitModalNetworks.getIdFromChain(
+    final chainId = ReownAppKitModalNetworks.getIdFromCaip2ChainId(
       _sendTokenData.chainId!,
     );
     final chainData = ReownAppKitModalNetworks.getNetworkInfo(
-      'solana',
       chainId,
     );
     // Create a connection to the devnet cluster.
@@ -185,11 +184,10 @@ class _PreviewSendSolanaState extends State<PreviewSendSolana> {
 
   Future<void> _estimateNetworkCost() async {
     try {
-      final chainId = ReownAppKitModalNetworks.getIdFromChain(
+      final chainId = ReownAppKitModalNetworks.getIdFromCaip2ChainId(
         _sendTokenData.chainId!,
       );
       final chainData = ReownAppKitModalNetworks.getNetworkInfo(
-        'solana',
         chainId,
       );
 

@@ -24,12 +24,14 @@ class ReownAppKitModalNetworkInfo with _$ReownAppKitModalNetworkInfo {
 extension AppKitNetworkInfoExtension on ReownAppKitModalNetworkInfo {
   String get chainHexId {
     try {
-      final id = ReownAppKitModalNetworks.getIdFromChain(chainId);
+      final id = ReownAppKitModalNetworks.getIdFromCaip2ChainId(chainId);
       return '0x${int.parse(id).toRadixString(16)}';
     } catch (e) {
       return chainId;
     }
   }
+
+  String get caip2ChainId => ReownAppKitModalNetworks.getCaip2ChainId(chainId);
 
   Map<String, dynamic> toRawJson({int? decimals}) {
     return {

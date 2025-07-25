@@ -85,12 +85,14 @@ class ReownAppKitModal
   String? _selectedChainID;
   @override
   ReownAppKitModalNetworkInfo? get selectedChain {
-    if (NamespaceUtils.isValidChainId(_selectedChainID ?? '')) {
-      final namespace = NamespaceUtils.getNamespaceFromChain(_selectedChainID!);
-      final id = ReownAppKitModalNetworks.getIdFromChain(_selectedChainID!);
-      return ReownAppKitModalNetworks.getNetworkInfo(namespace, id);
+    if (_selectedChainID == null || _selectedChainID!.isEmpty) {
+      return null;
     }
-    return null;
+    final caip2ChainId = ReownAppKitModalNetworks.getCaip2ChainId(
+      _selectedChainID!,
+    );
+    final id = ReownAppKitModalNetworks.getIdFromCaip2ChainId(caip2ChainId);
+    return ReownAppKitModalNetworks.getNetworkInfo(id);
   }
 
   @override
@@ -555,7 +557,6 @@ class ReownAppKitModal
       if (chainId != null) {
         final namespace = NamespaceUtils.getNamespaceFromChain(chainId);
         final chain = ReownAppKitModalNetworks.getNetworkInfo(
-          namespace,
           chainId,
         );
         if (chain != null) {
@@ -2154,7 +2155,7 @@ extension _CoinbaseConnectorExtension on ReownAppKitModal {
         final chainId = args.chainId ?? _currentSession!.chainId;
         final ns = NamespaceUtils.getNamespaceFromChain(chainId);
         final address = args.address ?? _currentSession!.getAddress(ns)!;
-        final chainInfo = ReownAppKitModalNetworks.getNetworkInfo(ns, chainId);
+        final chainInfo = ReownAppKitModalNetworks.getNetworkInfo(chainId);
         _selectedChainID = chainId;
         final session = _currentSession!.copyWith(
           coinbaseData: CoinbaseData(
